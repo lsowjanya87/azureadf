@@ -1,0 +1,9 @@
+{
+	"name": "lakshmidatafactory1",
+	"location": "eastus",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "3bac1d87-f8a9-4f2f-9d89-70526ab234c1",
+		"tenantId": "00e05b16-59bc-4f84-8830-14d773446a3d"
+	}
+}
