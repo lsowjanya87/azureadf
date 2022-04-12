@@ -11,6 +11,12 @@
 		"AzureFileStorage1_connectionString": {
 			"value": ""
 		},
+		"AzureSqlDatabase1_connectionString": {
+			"value": ""
+		},
+		"AzureKeyVault1_properties_typeProperties_baseUrl": {
+			"value": "https://lakshmikeyvault1.vault.azure.net/"
+		},
 		"containerUri": {
 			"value": ""
 		},
