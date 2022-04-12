@@ -1,0 +1,21 @@
+{
+	"name": "cust_and_non_cust_dest",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureFileStorage1",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureFileStorageLocation",
+				"folderPath": "@variables('dest_folder_name')"
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"quoteChar": "\""
+		},
+		"schema": []
+	}
+}
