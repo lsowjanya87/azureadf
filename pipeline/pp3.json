@@ -42,12 +42,7 @@
 						]
 					}
 				],
-				"userProperties": [
-					{
-						"name": "test",
-						"value": "test"
-					}
-				],
+				"userProperties": [],
 				"typeProperties": {
 					"items": {
 						"value": "@activity('Cust_Non_Cust_Get_Meta').output.childItems",
@@ -55,72 +50,170 @@
 					},
 					"activities": [
 						{
-							"name": "Copy data1",
-							"type": "Copy",
-							"dependsOn": [
-								{
-									"activity": "If Condition1",
-									"dependencyConditions": [
-										"Succeeded"
-									]
-								}
-							],
-							"policy": {
-								"timeout": "7.00:00:00",
-								"retry": 0,
-								"retryIntervalInSeconds": 30,
-								"secureOutput": false,
-								"secureInput": false
-							},
-							"userProperties": [],
-							"typeProperties": {
-								"sink": {
-									"type": "DelimitedTextSink",
-									"storeSettings": {
-										"type": "AzureBlobStorageWriteSettings"
-									},
-									"formatSettings": {
-										"type": "DelimitedTextWriteSettings",
-										"quoteAllText": true,
-										"fileExtension": ".txt"
-									}
-								},
-								"enableStaging": false
-							},
-							"outputs": [
-								{
-									"referenceName": "getmeta_destination",
-									"type": "DatasetReference"
-								}
-							]
-						},
-						{
-							"name": "If Condition1",
+							"name": "cust_data_name_checker",
 							"type": "IfCondition",
 							"dependsOn": [],
-							"userProperties": [
-								{
-									"name": "dest_folder_name",
-									"value": "cust_data"
-								}
-							],
+							"userProperties": [],
 							"typeProperties": {
 								"expression": {
 									"value": "@equals(indexOf(item().name, 'cust'), 0)",
 									"type": "Expression"
 								},
-								"ifTrueActivities": [
+								"ifFalseActivities": [
 									{
-										"name": "var1",
-										"description": "add",
+										"name": "Set_Var_False",
+										"description": "setting false",
 										"type": "SetVariable",
 										"dependsOn": [],
-										"userProperties": [
+										"userProperties": [],
+										"typeProperties": {
+											"variableName": "dest_folder_name",
+											"value": "non_cust"
+										}
+									},
+									{
+										"name": "Copy_to_non_cust",
+										"type": "Copy",
+										"dependsOn": [
 											{
-												"name": "test111",
-												"value": "test"
+												"activity": "Set_Var_False",
+												"dependencyConditions": [
+													"Succeeded"
+												]
+											}
+										],
+										"policy": {
+											"timeout": "7.00:00:00",
+											"retry": 0,
+											"retryIntervalInSeconds": 30,
+											"secureOutput": false,
+											"secureInput": false
+										},
+										"userProperties": [],
+										"typeProperties": {
+											"source": {
+												"type": "DelimitedTextSource",
+												"storeSettings": {
+													"type": "AzureBlobStorageReadSettings",
+													"recursive": true,
+													"wildcardFileName": "item().name",
+													"enablePartitionDiscovery": false
+												},
+												"formatSettings": {
+													"type": "DelimitedTextReadSettings"
+												}
+											},
+											"sink": {
+												"type": "DelimitedTextSink",
+												"storeSettings": {
+													"type": "AzureFileStorageWriteSettings"
+												},
+												"formatSettings": {
+													"type": "DelimitedTextWriteSettings",
+													"quoteAllText": true,
+													"fileExtension": ".txt"
+												}
+											},
+											"enableStaging": false,
+											"translator": {
+												"type": "TabularTranslator",
+												"typeConversion": true,
+												"typeConversionSettings": {
+													"allowDataTruncation": true,
+													"treatBooleanAsNumber": false
+												}
+											}
+										},
+										"inputs": [
+											{
+												"referenceName": "Cust_and_non_cust_source_files",
+												"type": "DatasetReference"
+											}
+										],
+										"outputs": [
+											{
+												"referenceName": "cust_and_non_cust_dest",
+												"type": "DatasetReference"
 											}
 										]
+									}
+								],
+								"ifTrueActivities": [
+									{
+										"name": "copy_to_cust_folder",
+										"type": "Copy",
+										"dependsOn": [
+											{
+												"activity": "SetToTrue",
+												"dependencyConditions": [
+													"Succeeded"
+												]
+											}
+										],
+										"policy": {
+											"timeout": "7.00:00:00",
+											"retry": 0,
+											"retryIntervalInSeconds": 30,
+											"secureOutput": false,
+											"secureInput": false
+										},
+										"userProperties": [],
+										"typeProperties": {
+											"source": {
+												"type": "DelimitedTextSource",
+												"storeSettings": {
+													"type": "AzureBlobStorageReadSettings",
+													"recursive": true,
+													"wildcardFileName": "item().name",
+													"enablePartitionDiscovery": false
+												},
+												"formatSettings": {
+													"type": "DelimitedTextReadSettings"
+												}
+											},
+											"sink": {
+												"type": "DelimitedTextSink",
+												"storeSettings": {
+													"type": "AzureFileStorageWriteSettings"
+												},
+												"formatSettings": {
+													"type": "DelimitedTextWriteSettings",
+													"quoteAllText": true,
+													"fileExtension": ".txt"
+												}
+											},
+											"enableStaging": false,
+											"translator": {
+												"type": "TabularTranslator",
+												"typeConversion": true,
+												"typeConversionSettings": {
+													"allowDataTruncation": true,
+													"treatBooleanAsNumber": false
+												}
+											}
+										},
+										"inputs": [
+											{
+												"referenceName": "Cust_and_non_cust_source_files",
+												"type": "DatasetReference"
+											}
+										],
+										"outputs": [
+											{
+												"referenceName": "cust_and_non_cust_dest",
+												"type": "DatasetReference"
+											}
+										]
+									},
+									{
+										"name": "SetToTrue",
+										"type": "SetVariable",
+										"dependsOn": [],
+										"userProperties": [],
+										"typeProperties": {
+											"variableName": "dest_folder_name",
+											"value": "cust_data"
+										}
 									}
 								]
 							}
