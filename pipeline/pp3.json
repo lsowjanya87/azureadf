@@ -1,0 +1,139 @@
+{
+	"name": "pp3",
+	"properties": {
+		"activities": [
+			{
+				"name": "Cust_Non_Cust_Get_Meta",
+				"type": "GetMetadata",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataset": {
+						"referenceName": "Cust_and_non_cust_source_files",
+						"type": "DatasetReference"
+					},
+					"fieldList": [
+						"childItems"
+					],
+					"storeSettings": {
+						"type": "AzureBlobStorageReadSettings",
+						"enablePartitionDiscovery": false
+					},
+					"formatSettings": {
+						"type": "DelimitedTextReadSettings"
+					}
+				}
+			},
+			{
+				"name": "Cust_non_cust_for_each",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "Cust_Non_Cust_Get_Meta",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [
+					{
+						"name": "test",
+						"value": "test"
+					}
+				],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('Cust_Non_Cust_Get_Meta').output.childItems",
+						"type": "Expression"
+					},
+					"activities": [
+						{
+							"name": "Copy data1",
+							"type": "Copy",
+							"dependsOn": [
+								{
+									"activity": "If Condition1",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"timeout": "7.00:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"sink": {
+									"type": "DelimitedTextSink",
+									"storeSettings": {
+										"type": "AzureBlobStorageWriteSettings"
+									},
+									"formatSettings": {
+										"type": "DelimitedTextWriteSettings",
+										"quoteAllText": true,
+										"fileExtension": ".txt"
+									}
+								},
+								"enableStaging": false
+							},
+							"outputs": [
+								{
+									"referenceName": "getmeta_destination",
+									"type": "DatasetReference"
+								}
+							]
+						},
+						{
+							"name": "If Condition1",
+							"type": "IfCondition",
+							"dependsOn": [],
+							"userProperties": [
+								{
+									"name": "dest_folder_name",
+									"value": "cust_data"
+								}
+							],
+							"typeProperties": {
+								"expression": {
+									"value": "@equals(indexOf(item().name, 'cust'), 0)",
+									"type": "Expression"
+								},
+								"ifTrueActivities": [
+									{
+										"name": "var1",
+										"description": "add",
+										"type": "SetVariable",
+										"dependsOn": [],
+										"userProperties": [
+											{
+												"name": "test111",
+												"value": "test"
+											}
+										]
+									}
+								]
+							}
+						}
+					]
+				}
+			}
+		],
+		"variables": {
+			"dest_folder_name": {
+				"type": "String"
+			}
+		},
+		"annotations": []
+	}
+}
