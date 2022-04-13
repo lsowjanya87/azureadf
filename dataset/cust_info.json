@@ -1,5 +1,5 @@
 {
-	"name": "cust_and_non_cust_dest",
+	"name": "cust_info",
 	"properties": {
 		"linkedServiceName": {
 			"referenceName": "AzureFileStorage1",
@@ -10,7 +10,7 @@
 		"typeProperties": {
 			"location": {
 				"type": "AzureFileStorageLocation",
-				"folderPath": "@variables('dest_folder_name')"
+				"folderPath": "cust_data"
 			},
 			"columnDelimiter": ",",
 			"escapeChar": "\\",
