@@ -24,6 +24,7 @@
 					],
 					"storeSettings": {
 						"type": "AzureBlobStorageReadSettings",
+						"recursive": true,
 						"enablePartitionDiscovery": false
 					},
 					"formatSettings": {
@@ -48,13 +49,14 @@
 						"value": "@activity('Cust_Non_Cust_Get_Meta').output.childItems",
 						"type": "Expression"
 					},
+					"isSequential": true,
 					"activities": [
 						{
-							"name": "cust_data_name_checker",
+							"name": "CheckTheFileStartName",
 							"type": "IfCondition",
 							"dependsOn": [
 								{
-									"activity": "Set_Source_file_name_var",
+									"activity": "Set_Source_file_path",
 									"dependencyConditions": [
 										"Succeeded"
 									]
@@ -63,32 +65,14 @@
 							"userProperties": [],
 							"typeProperties": {
 								"expression": {
-									"value": "@equals(indexOf(item().name, 'cust'), 0)",
+									"value": "@startswith(item().name, 'cust')",
 									"type": "Expression"
 								},
 								"ifFalseActivities": [
 									{
-										"name": "Set_Var_False",
-										"description": "setting false",
-										"type": "SetVariable",
-										"dependsOn": [],
-										"userProperties": [],
-										"typeProperties": {
-											"variableName": "dest_folder_name",
-											"value": "non_cust"
-										}
-									},
-									{
-										"name": "Copy_to_non_cust",
+										"name": "Copy_to_non_cust_data",
 										"type": "Copy",
-										"dependsOn": [
-											{
-												"activity": "Set_Var_False",
-												"dependencyConditions": [
-													"Succeeded"
-												]
-											}
-										],
+										"dependsOn": [],
 										"policy": {
 											"timeout": "7.00:00:00",
 											"retry": 0,
@@ -136,13 +120,13 @@
 										},
 										"inputs": [
 											{
-												"referenceName": "Cust_and_non_cust_source_files",
+												"referenceName": "Archive_Source_files",
 												"type": "DatasetReference"
 											}
 										],
 										"outputs": [
 											{
-												"referenceName": "cust_and_non_cust_dest",
+												"referenceName": "non_cust_info",
 												"type": "DatasetReference"
 											}
 										]
@@ -150,16 +134,9 @@
 								],
 								"ifTrueActivities": [
 									{
-										"name": "copy_to_cust_folder",
+										"name": "CopyToCust",
 										"type": "Copy",
-										"dependsOn": [
-											{
-												"activity": "SetToTrue",
-												"dependencyConditions": [
-													"Succeeded"
-												]
-											}
-										],
+										"dependsOn": [],
 										"policy": {
 											"timeout": "7.00:00:00",
 											"retry": 0,
@@ -207,32 +184,22 @@
 										},
 										"inputs": [
 											{
-												"referenceName": "Cust_and_non_cust_source_files",
+												"referenceName": "Archive_Source_files",
 												"type": "DatasetReference"
 											}
 										],
 										"outputs": [
 											{
-												"referenceName": "cust_and_non_cust_dest",
+												"referenceName": "cust_info",
 												"type": "DatasetReference"
 											}
 										]
-									},
-									{
-										"name": "SetToTrue",
-										"type": "SetVariable",
-										"dependsOn": [],
-										"userProperties": [],
-										"typeProperties": {
-											"variableName": "dest_folder_name",
-											"value": "cust_data"
-										}
 									}
 								]
 							}
 						},
 						{
-							"name": "Set_Source_file_name_var",
+							"name": "Set_Source_file_path",
 							"type": "SetVariable",
 							"dependsOn": [],
 							"userProperties": [],
